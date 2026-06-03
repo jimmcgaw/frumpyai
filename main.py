@@ -29,25 +29,38 @@ def configure_dspy() -> dspy.LM:
     return lm
 
 
+class ImproveExplanation(dspy.Signature):
+    """
+    Improve a rough technical explanation for a software engineering audience.
+
+    Preserve the user's original meaning, but make it clearer, more precise,
+    and easier to say in an interview or teaching context.
+    """
+
+    rough_explanation: str = dspy.InputField()
+    audience: str = dspy.InputField(desc="Target audience, e.g. junior engineer, staff engineer, PM")
+    improved_explanation: str = dspy.OutputField()
+    key_changes: str = dspy.OutputField(desc="Briefly explain what was improved")
+
+
 def main():
     configure_dspy()
 
-    improve_explanation = dspy.Predict(
-        "rough_explanation -> improved_explanation"
-    )
+    improve = dspy.Predict(ImproveExplanation)
 
-    result = improve_explanation(
+    result = improve(
         rough_explanation=(
-            "Idempotency means if you retry something it doesn't mess things up. "
-            "It's useful when networks fail."
-        )
+            "Caching is when you save data so it's faster later, "
+            "but it can be wrong sometimes if the real data changes."
+        ),
+        audience="junior backend engineer",
     )
 
     print("\nImproved explanation:\n")
     print(result.improved_explanation)
 
-    print("\n--- DSPy generated prompt/history ---\n")
-    dspy.inspect_history(n=1)
+    print("\nKey changes:\n")
+    print(result.key_changes)
 
 
 

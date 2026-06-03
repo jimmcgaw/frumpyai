@@ -30,19 +30,24 @@ def configure_dspy() -> dspy.LM:
 
 
 def main():
-    lm = configure_dspy()
+    configure_dspy()
 
-    response = lm(
-        messages=[
-            {"role": "system", "content": "You explain software concepts clearly."},
-            {
-                "role": "user",
-                "content": "Explain idempotency in distributed systems in 3 sentences.",
-            },
-        ]
+    improve_explanation = dspy.Predict(
+        "rough_explanation -> improved_explanation"
     )
 
-    print(response)
+    result = improve_explanation(
+        rough_explanation=(
+            "Idempotency means if you retry something it doesn't mess things up. "
+            "It's useful when networks fail."
+        )
+    )
+
+    print("\nImproved explanation:\n")
+    print(result.improved_explanation)
+
+    print("\n--- DSPy generated prompt/history ---\n")
+    dspy.inspect_history(n=1)
 
 
 
